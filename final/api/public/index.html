@@ -15,15 +15,15 @@
     </head>
     <body>
         <h2>todo List</h2>
-        <form name="userForm">
+        <form name="todoForm">
             <input type="hidden" name="id" value="0" />
             <div class="form-group">
-                <label for="name">Задача:</label>
-                <input class="form-control" name="name" />
+                <label for="task">Задача:</label>
+                <input class="form-control" name="task" />
             </div>
             <div class="form-group">
-                <label for="age">Время выполнения:</label>
-                <input class="form-control" name="age" />
+                <label for="time">Время выполнения:</label>
+                <input class="form-control" name="time" />
             </div>
             <div class="panel-body">
                 <button
@@ -43,8 +43,8 @@
             <thead>
                 <tr>
                     <th>Id</th>
-                    <th>Задача</th>
-                    <th>Ввремя выполнения</th>
+                    <th>task</th>
+                    <th>time</th>
                     <th></th>
                 </tr>
             </thead>
@@ -53,120 +53,120 @@
 
         <script>
             // Получение всех пользователей
-            function GetUsers() {
+            function GetTodoList() {
                 $.ajax({
                     url: '/api/todo',
                     type: 'GET',
                     contentType: 'application/json',
-                    success: function (users) {
+                    success: function (todoList) {
                         var rows = '';
-                        $.each(users, function (
+                        $.each(todoList, function (
                             index,
-                            user
+                            todo
                         ) {
                             // добавляем полученные элементы в таблицу
-                            rows += row(user);
+                            rows += row(todo);
                         });
                         $('table tbody').append(rows);
                     },
                 });
             }
             // Получение одного пользователя
-            function GetUser(id) {
+            function GetTodo(id) {
                 $.ajax({
                     url: '/api/todo/' + id,
                     type: 'GET',
                     contentType: 'application/json',
-                    success: function (user) {
+                    success: function (todo) {
                         var form =
-                            document.forms['userForm'];
-                        form.elements['id'].value = user.id;
-                        form.elements['name'].value =
-                            user.name;
-                        form.elements['age'].value =
-                            user.age;
+                            document.forms['todoForm'];
+                        form.elements['id'].value = todo.id;
+                        form.elements['task'].value =
+                            todo.task;
+                        form.elements['time'].value =
+                            todo.time;
                     },
                 });
             }
             // Добавление пользователя
-            function CreateUser(userName, userAge) {
+            function CreateTodo(todoTask, todoTime) {
                 $.ajax({
                     url: 'api/todo',
                     contentType: 'application/json',
                     method: 'POST',
                     data: JSON.stringify({
-                        name: userName,
-                        age: userAge,
+                        task: todoTask,
+                        time: todoTime,
                     }),
-                    success: function (user) {
+                    success: function (todo) {
                         reset();
-                        $('table tbody').append(row(user));
+                        $('table tbody').append(row(todo));
                     },
                 });
             }
             // Изменение пользователя
-            function EditUser(userId, userName, userAge) {
+            function EditTodo(todoId, todoTask, todoTime) {
                 $.ajax({
                     url: 'api/todo',
                     contentType: 'application/json',
                     method: 'PUT',
                     data: JSON.stringify({
-                        id: userId,
-                        name: userName,
-                        age: userAge,
+                        id: todoId,
+                        task: todoTask,
+                        time: todoTime,
                     }),
-                    success: function (user) {
+                    success: function (todo) {
                         reset();
                         $(
                             "tr[data-rowid='" +
-                                user.id +
+                                todo.id +
                                 "']"
-                        ).replaceWith(row(user));
+                        ).replaceWith(row(todo));
                     },
                 });
             }
 
             // сброс формы
             function reset() {
-                var form = document.forms['userForm'];
+                var form = document.forms['todoForm'];
                 form.reset();
                 form.elements['id'].value = 0;
             }
 
             // Удаление пользователя
-            function DeleteUser(id) {
+            function DeleteTodo(id) {
                 $.ajax({
                     url: 'api/todo/' + id,
                     contentType: 'application/json',
                     method: 'DELETE',
-                    success: function (user) {
-                        console.log(user);
+                    success: function (todo) {
+                        console.log(todo);
                         $(
                             "tr[data-rowid='" +
-                                user.id +
+                                todo.id +
                                 "']"
                         ).remove();
                     },
                 });
             }
             // создание строки для таблицы
-            var row = function (user) {
+            var row = function (todo) {
                 return (
                     "<tr data-rowid='" +
-                    user.id +
+                    todo.id +
                     "'><td>" +
-                    user.id +
+                    todo.id +
                     '</td>' +
                     '<td>' +
-                    user.name +
+                    todo.task +
                     '</td> <td>' +
-                    user.age +
+                    todo.time +
                     '</td>' +
                     "<td><a class='editLink' data-id='" +
-                    user.id +
+                    todo.id +
                     "'>Изменить</a> | " +
                     "<a class='removeLink' data-id='" +
-                    user.id +
+                    todo.id +
                     "'>Удалить</a></td></tr>"
                 );
             };
@@ -180,16 +180,16 @@
             $('form').submit(function (e) {
                 e.preventDefault();
                 var id = this.elements['id'].value;
-                var name = this.elements['name'].value;
-                var age = this.elements['age'].value;
-                if (id == 0) CreateUser(name, age);
-                else EditUser(id, name, age);
+                var task = this.elements['task'].value;
+                var time = this.elements['time'].value;
+                if (id == 0) CreateTodo(task, time);
+                else EditTodo(id, task, time);
             });
 
             // нажимаем на ссылку Изменить
             $('body').on('click', '.editLink', function () {
                 var id = $(this).data('id');
-                GetUser(id);
+                GetTodo(id);
             });
             // нажимаем на ссылку Удалить
             $('body').on(
@@ -197,12 +197,12 @@
                 '.removeLink',
                 function () {
                     var id = $(this).data('id');
-                    DeleteUser(id);
+                    DeleteTodo(id);
                 }
             );
 
             // загрузка пользователей
-            GetUsers();
+            GetTodoList();
         </script>
     </body>
 </html>
