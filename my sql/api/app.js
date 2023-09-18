@@ -1,8 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require('fs');
-var mysql      = require('mysql');
-
 
 var app = express();
 var jsonParser = bodyParser.json();
@@ -118,21 +116,4 @@ app.put('/api/todo/:id', jsonParser, function (req, res) {
 
 app.listen(3000, function () {
     console.log('Сервер ожидает подключения...');
-});
-
-
-
-var connection = mysql.createConnection({
-  host     : '192.168.25.23',
-  user     : 'isp_r_Korovin2',
-  password : '12345',
-  database : "isp_r_korovin"
-});
- 
-connection.connect();
-
-connection.query("CREATE TABLE todoListApi",
-  function(err, results) {
-    if(err) console.log(err);
-    else console.log("Таблица создана данных создана");
 });

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width"
+        />
+        <title>Todo list</title>
+        <link
+            href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    </head>
+    <body>
+        <h2>todo List</h2>
+        <form name="todoForm">
+            <input type="hidden" name="id" value="0" />
+            <div class="form-group">
+                <label for="task">Задача:</label>
+                <input class="form-control" name="task" />
+            </div>
+            <div class="form-group">
+                <label for="time">Время выполнения:</label>
+                <input class="form-control" name="time" />
+            </div>
+            <div class="panel-body">
+                <button
+                    type="submit"
+                    class="btn btn-sm btn-primary"
+                >
+                    Сохранить
+                </button>
+                <a id="reset" class="btn btn-sm btn-primary"
+                    >Сбросить</a
+                >
+            </div>
+        </form>
+        <table
+            class="table table-condensed table-striped table-bordered"
+        >
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>task</th>
+                    <th>time</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <script>
+            // Получение всех пользователей
+            function GetTodoList() {
+                $.ajax({
+                    url: '/api/todo',
+                    type: 'GET',
+                    contentType: 'application/json',
+                    success: function (todoList) {
+                        var rows = '';
+                        $.each(todoList, function (
+                            index,
+                            todo
+                        ) {
+                            // добавляем полученные элементы в таблицу
+                            rows += row(todo);
+                        });
+                        $('table tbody').append(rows);
+                    },
+                });
+            }
+            // Получение одного пользователя
+            function GetTodo(id) {
+                $.ajax({
+                    url: '/api/todo/' + id,
+                    type: 'GET',
+                    contentType: 'application/json',
+                    success: function (todo) {
+                        var form =
+                            document.forms['todoForm'];
+                        form.elements['id'].value = todo.id;
+                        form.elements['task'].value =
+                            todo.task;
+                        form.elements['time'].value =
+                            todo.time;
+                    },
+                });
+            }
+            // Добавление пользователя
+            function CreateTodo(todoTask, todoTime) {
+                $.ajax({
+                    url: 'api/todo',
+                    contentType: 'application/json',
+                    method: 'POST',
+                    data: JSON.stringify({
+                        task: todoTask,
+                        time: todoTime,
+                    }),
+                    success: function (todo) {
+                        reset();
+                        $('table tbody').append(row(todo));
+                    },
+                });
+            }
+            // Изменение пользователя
+            function EditTodo(todoId, todoTask, todoTime) {
+                $.ajax({
+                    url: 'api/todo',
+                    contentType: 'application/json',
+                    method: 'PUT',
+                    data: JSON.stringify({
+                        id: todoId,
+                        task: todoTask,
+                        time: todoTime,
+                    }),
+                    success: function (todo) {
+                        reset();
+                        $(
+                            "tr[data-rowid='" +
+                                todo.id +
+                                "']"
+                        ).replaceWith(row(todo));
+                    },
+                });
+            }
+
+            // сброс формы
+            function reset() {
+                var form = document.forms['todoForm'];
+                form.reset();
+                form.elements['id'].value = 0;
+            }
+
+            // Удаление пользователя
+            function DeleteTodo(id) {
+                $.ajax({
+                    url: 'api/todo/' + id,
+                    contentType: 'application/json',
+                    method: 'DELETE',
+                    success: function (todo) {
+                        console.log(todo);
+                        $(
+                            "tr[data-rowid='" +
+                                todo.id +
+                                "']"
+                        ).remove();
+                    },
+                });
+            }
+            // создание строки для таблицы
+            var row = function (todo) {
+                return (
+                    "<tr data-rowid='" +
+                    todo.id +
+                    "'><td>" +
+                    todo.id +
+                    '</td>' +
+                    '<td>' +
+                    todo.task +
+                    '</td> <td>' +
+                    todo.time +
+                    '</td>' +
+                    "<td><a class='editLink' data-id='" +
+                    todo.id +
+                    "'>Изменить</a> | " +
+                    "<a class='removeLink' data-id='" +
+                    todo.id +
+                    "'>Удалить</a></td></tr>"
+                );
+            };
+            // сброс значений формы
+            $('#reset').click(function (e) {
+                e.preventDefault();
+                reset();
+            });
+
+            // отправка формы
+            $('form').submit(function (e) {
+                e.preventDefault();
+                var id = this.elements['id'].value;
+                var task = this.elements['task'].value;
+                var time = this.elements['time'].value;
+                if (id == 0) CreateTodo(task, time);
+                else EditTodo(id, task, time);
+            });
+
+            // нажимаем на ссылку Изменить
+            $('body').on('click', '.editLink', function () {
+                var id = $(this).data('id');
+                GetTodo(id);
+            });
+            // нажимаем на ссылку Удалить
+            $('body').on(
+                'click',
+                '.removeLink',
+                function () {
+                    var id = $(this).data('id');
+                    DeleteTodo(id);
+                }
+            );
+
+            // загрузка пользователей
+            GetTodoList();
+        </script>
+    </body>
+</html>
