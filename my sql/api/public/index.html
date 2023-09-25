@@ -50,7 +50,10 @@
             </thead>
             <tbody></tbody>
         </table>
-
+        <form action="/img" method="post" enctype="multipart/form-data">
+            <input type="file" name="avatar" />
+            <p></p>
+          </form>
         <script>
             // Получение всех пользователей
             function GetTodoList() {
@@ -72,6 +75,7 @@
                 });
             }
             // Получение одного пользователя
+            
             function GetTodo(id) {
                 $.ajax({
                     url: '/api/todo/' + id,
@@ -89,6 +93,7 @@
                 });
             }
             // Добавление пользователя
+            
             function CreateTodo(todoTask, todoTime) {
                 $.ajax({
                     url: 'api/todo',

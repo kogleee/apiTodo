@@ -122,17 +122,3 @@ app.listen(3000, function () {
 
 
 
-var connection = mysql.createConnection({
-  host     : '192.168.25.23',
-  user     : 'isp_r_Korovin2',
-  password : '12345',
-  database : "isp_r_korovin"
-});
- 
-connection.connect();
-
-connection.query("CREATE TABLE todoListApi",
-  function(err, results) {
-    if(err) console.log(err);
-    else console.log("Таблица создана данных создана");
-});
