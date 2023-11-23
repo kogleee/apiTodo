@@ -33,7 +33,15 @@ const putById = (req,res) => {
 	else return res.status(200).json("Успешно изменено")
 }
 
+const getAllImg = (req,res) => {
+	
+}
 
-module.exports = { getAll, post, getByID, deleteById, putById };
+
+module.exports = { 
+	getAll, post, getByID, deleteById, putById,
+	getAllImg, postImg, getImgById, deleteImgById, putImgById
+
+};
 
 
